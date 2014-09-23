@@ -96,4 +96,20 @@ public class TextOverlay {
 
 		}
 	}
+	
+	public ArrayList<String> getFormatDataList() {
+		ArrayList<String> dataList = new ArrayList<String>();
+		dataList.add(pathToVideo);
+		dataList.add(textToOverlay);
+		dataList.add(pathToFont);
+		dataList.add(fontSize);
+		dataList.add(color);
+		for (int i = 0; i < startInputs.length; i++) {
+			dataList.add(startInputs[i]);
+		}
+		for (int i = 0; i < startInputs.length; i++) {
+			dataList.add(endInputs[i]);
+		}
+		return dataList;	
+	}
 }
