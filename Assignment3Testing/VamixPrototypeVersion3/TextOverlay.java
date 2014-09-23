@@ -9,6 +9,7 @@ public class TextOverlay {
 	public String pathToVideo;
 	public String textToOverlay;
 	public String pathToFont;
+	public int fontIndexInFontChooser;
 	public String fontSize;
 	public String color;
 	public String[] startInputs;
@@ -17,15 +18,37 @@ public class TextOverlay {
 	public String tempFileVideoName;
 
 	public TextOverlay(String pathToVideo, String textToOverlay,
-			String pathToFont, String fontSize, String color,
+			String pathToFont, int fontIndex, String fontSize, String color,
 			String[] startInputs, String[] endInputs) {
 		this.pathToVideo = pathToVideo;
 		this.textToOverlay = textToOverlay;
 		this.pathToFont = pathToFont;
+		this.fontIndexInFontChooser = fontIndex;
 		this.fontSize = fontSize;
 		this.color = color;
 		this.startInputs = startInputs;
 		this.endInputs = endInputs;
+	}
+	
+	public String createBashCommand() {
+		String color = "0xff" + this.color;
+		int startSeconds = Integer.parseInt(startInputs[0]) * 3600
+				+ Integer.parseInt(startInputs[1]) * 60
+				+ Integer.parseInt(startInputs[2]);
+		int endSeconds = Integer.parseInt(endInputs[0]) * 3600
+				+ Integer.parseInt(endInputs[1]) * 60
+				+ Integer.parseInt(endInputs[2]);
+
+		ArrayList<String> listOfCommands = new ArrayList<String>();
+
+		String cmd = "avconv -i " + pathToVideo
+				+ " -strict experimental -vf \"drawtext=" + "fontfile='"
+				+ pathToFont + "':text='" + textToOverlay + "':fontsize='"
+				+ fontSize + "':" + "fontcolor='" + color
+				+ "': draw='gt(t," + startSeconds + ")*lt(t," + endSeconds
+				+ ")'\"";
+		
+		return cmd;
 	}
 
 	/**
@@ -45,14 +68,9 @@ public class TextOverlay {
 
 			ArrayList<String> listOfCommands = new ArrayList<String>();
 
-			String createTextOverlaySplitCmd = "avconv -i " + pathToVideo
-					+ " -strict experimental -vf \"drawtext=" + "fontfile='"
-					+ pathToFont + "':text='" + textToOverlay + "':fontsize='"
-					+ fontSize + "':" + "fontcolor='" + color
-					+ "': draw='gt(t," + startSeconds + ")*lt(t," + endSeconds
-					+ ")'\"" + " -y .tempVideoFile.mp4";
+			String cmd = createBashCommand() + " -y .tempVideoFile.mp4";
 
-			listOfCommands.add(createTextOverlaySplitCmd);
+			listOfCommands.add(cmd);
 
 			CustomSwingWorker csw = new CustomSwingWorker(listOfCommands);
 			csw.execute();

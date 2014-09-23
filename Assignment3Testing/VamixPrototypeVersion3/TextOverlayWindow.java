@@ -37,6 +37,10 @@ public class TextOverlayWindow extends JFrame {
 		tabPane.add(tabName, tab);
 	}
 	
+	public void removeTab(int index) {
+		tabPane.remove(index);
+	}
+	
 	public void showGUI() {
 		this.setVisible(true);
 	}

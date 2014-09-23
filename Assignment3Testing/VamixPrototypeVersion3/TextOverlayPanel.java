@@ -1,3 +1,4 @@
+import java.awt.Color;
 import java.awt.Component;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
@@ -12,6 +13,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 
 import javax.swing.JButton;
+import javax.swing.JColorChooser;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
@@ -30,16 +32,17 @@ public class TextOverlayPanel extends JPanel {
 
 	private JComboBox fontsBox;
 
-	private JButton exportButton;
+	private JButton exportButton, colorButton;
 
 	private TimeInput fontSize;
 
 	private InputPanel startInput, endInput;
 
 	private HashMap<String, File> fontMap;
+	
+	private JColorChooser colorChooser;
 
 	private ArrayList<TextOverlay> textComponents;
-	private ArrayList<TextOverlayTab> tabComponents;
 
 	public TextOverlayPanel() {
 		textComponents = new ArrayList<TextOverlay>();
@@ -51,7 +54,7 @@ public class TextOverlayPanel extends JPanel {
 		textToOverLayLabel = new JLabel("Specify text to overlay");
 		fontTypeLabel = new JLabel("Select font");
 		fontSizeLabel = new JLabel("Specify font size as an integer");
-		fontColorLabel = new JLabel("Specify color");
+		fontColorLabel = new JLabel("");
 		startInputLabel = new JLabel("Specify start time in hh:mm:ss");
 		endInputLabel = new JLabel("specify end time in hh:mm:ss");
 
@@ -60,9 +63,14 @@ public class TextOverlayPanel extends JPanel {
 
 		exportButton = new JButton("Add Text Component");
 		exportButton.addActionListener(setExportButton());
+		
+		colorButton = new JButton("Select Font Color");
+		colorButton.addActionListener(setColorChooserButton());
 
 		startInput = new InputPanel("Specify start time in hh:mm:ss");
 		endInput = new InputPanel("Specify end time in hh:mm:ss");
+		
+		colorChooser = new JColorChooser();
 
 		add(textToOverLayLabel);
 		add(textToOverLay);
@@ -73,8 +81,9 @@ public class TextOverlayPanel extends JPanel {
 		add(fontSizeLabel);
 		add(fontSize);
 
+		add(colorButton);
 		add(fontColorLabel);
-		add(fontColor);
+		//add(fontColor);
 
 		add(startInput);
 		add(endInput);
@@ -84,7 +93,7 @@ public class TextOverlayPanel extends JPanel {
 		setVisible(true);
 
 		CreateFontList fontList = new CreateFontList();
-		fontMap = fontList.getMap();
+		setFontMap(fontList.getMap());
 	}
 	
 	/*public static TextOverlayPanel getInstance() {
@@ -99,37 +108,47 @@ public class TextOverlayPanel extends JPanel {
 				String videoPath = VamixPrototypeV2.getInstance()
 						.getVideoFilePath();
 
-				File selectedFontFile = fontMap.get(fontsBox.getSelectedItem()
+				File selectedFontFile = getFontMap().get(fontsBox.getSelectedItem()
 						.toString());
 				String selectedFontPath = selectedFontFile.getPath();
 
 				String fontsize = fontSize.getText();
-				String colorString = fontColor.getText();
+				String colorString = fontColorLabel.getText();
 				
-				if (fontsize == "") {
+				if (fontsize.equals("")) {
 					fontsize = "" + 16;
 				}
-				if (colorString == "") {
+				if (colorString.equals("") || colorString.equals(null)) {
 					colorString = "black";
 				}
 
 				TextOverlay newTextComponent = new TextOverlay(videoPath, textToOverLay
-						.getText(), selectedFontPath, fontsize, colorString,
+						.getText(), selectedFontPath, fontsBox.getSelectedIndex(), fontsize, colorString,
 						startInput.getInputs(), endInput.getInputs());
 				
 				textComponents.add(newTextComponent);
 				
-				TextOverlayTab newTextTab = new TextOverlayTab(newTextComponent);
-				
-				tabComponents.add(newTextTab);
-				
-				TextOverlayWindow.getInstance().addTab("Text Component", newTextTab);
+				TextOverlayWindow.getInstance().addTab("Text Component", new TextOverlayTab(newTextComponent, textComponents.size() - 1));
 				
 			}
 
 		};
-		
-		
+	}
+	
+	private ActionListener setColorChooserButton() {
+		return new ActionListener() {
+
+			@Override
+			public void actionPerformed(ActionEvent arg0) {
+				// TODO Auto-generated method stub
+				Color newColor = JColorChooser.showDialog(TextOverlayPanel.this,
+	                     "Choose Background Color",
+	                     Color.BLACK);
+				String hexString = Integer.toHexString(newColor.getRGB());
+				fontColorLabel.setText(hexString);
+			}
+			
+		};
 	}
 	
 	public ArrayList<TextOverlay> getTextOverlayComponents() {
@@ -142,7 +161,7 @@ public class TextOverlayPanel extends JPanel {
 	 * for extraction.
 	 * 
 	 */
-	private class InputPanel extends JPanel {
+	class InputPanel extends JPanel {
 		private TimeInput hrsInput;
 		private TimeInput minsInput;
 		private TimeInput secsInput;
@@ -168,7 +187,16 @@ public class TextOverlayPanel extends JPanel {
 			inputs[2] = secsInput.getText();
 
 			return inputs;
-
+		}
+		
+		public void setInputs(String[] inputs) {
+			hrsInput.setText(inputs[0]);
+			minsInput.setText(inputs[1]);
+			secsInput.setText(inputs[2]);
+		}
+		
+		public String getLabelText() {
+			return inputLabel.getText();
 		}
 	}
 
@@ -177,7 +205,7 @@ public class TextOverlayPanel extends JPanel {
 	 * be entered. It is used in conjunction with the InputPanel class to allow
 	 * users to specify the start and end times for extraction.
 	 */
-	private class TimeInput extends JTextField {
+	class TimeInput extends JTextField {
 
 		public TimeInput() {
 			// Set the size of the input field.
@@ -204,5 +232,13 @@ public class TextOverlayPanel extends JPanel {
 	
 	public ArrayList<TextOverlay> getTextOverlays() {
 		return textComponents;
+	}
+
+	public HashMap<String, File> getFontMap() {
+		return fontMap;
+	}
+
+	public void setFontMap(HashMap<String, File> fontMap) {
+		this.fontMap = fontMap;
 	}
 }
