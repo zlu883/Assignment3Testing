@@ -33,6 +33,7 @@ import uk.co.caprica.vlcj.player.MediaPlayer;
 import uk.co.caprica.vlcj.player.MediaPlayerEventAdapter;
 
 public class GuiManager {
+	private static GuiManager instance = new GuiManager();
 	
 	public static final int OPEN = 0;
 	public static final int SAVE = 1;
@@ -60,7 +61,11 @@ public class GuiManager {
 	
 	private String _currentPlayingFile = null;
 	
-	public GuiManager() {};
+	private GuiManager() {};
+	
+	public static GuiManager getInstance() {
+		return instance;
+	}
 	
 	public JFrame createVamixWindow() {
 		
@@ -553,5 +558,9 @@ public class GuiManager {
             ext = s.substring(i+1).toLowerCase();
         }
         return ext;
+    }
+    
+    public String getVideoFilePath() {
+    	return _currentPlayingFile;
     }
 }

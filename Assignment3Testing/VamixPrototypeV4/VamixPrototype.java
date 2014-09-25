@@ -6,10 +6,7 @@ public class VamixPrototype {
 	private static JFrame _vamixWindow;
 
 	public static void main(String[] args) {
-		
-		_guiManager = new GuiManager();
-		_vamixWindow = _guiManager.createVamixWindow();
-
+		_vamixWindow = GuiManager.getInstance().createVamixWindow();
 	}
 
 }

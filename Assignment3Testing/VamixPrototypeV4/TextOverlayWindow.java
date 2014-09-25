@@ -15,11 +15,9 @@ public class TextOverlayWindow extends JFrame {
 		setTitle("Text Overlay");
 		
 		setLocation(150, 150);
-		setSize(400, 400);
+		setSize(400, 450);
 
-		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
-
-				// Create the container to hold the tabs
+		// Create the container to hold the tabs
 		tabPane = new JTabbedPane();
 		
 		TOpanel = new TextOverlayPanel();
@@ -42,6 +40,9 @@ public class TextOverlayWindow extends JFrame {
 	}
 	
 	public void showGUI() {
+		for (TextOverlayTab t : TOpanel.getTextTabs()) {
+			tabPane.add(t);
+		}
 		this.setVisible(true);
 	}
 	

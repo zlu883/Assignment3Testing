@@ -68,6 +68,7 @@ public class TextOverlayFileManager {
 		String color = null;
 		String[] startInputs = new String[3];
 		String[] endInputs = new String[3];
+		String positionEnum = null;
 		
 		BufferedReader reader = new BufferedReader(new FileReader(saveFile));
 		String line;
@@ -81,12 +82,12 @@ public class TextOverlayFileManager {
 		}
 		reader.close();
 		
-		if (lineList.size() % 12 != 0) {
+		if (lineList.size() % 13 != 0) {
 			throw new VamixException("Corrupted file");
 		}
 		int c;
 		for (int i = 0; i < lineList.size(); i++) {
-			c = (i + 1) % 12;
+			c = (i + 1) % 13;
 			if (c == 1) {
 				pathToVideo = lineList.get(i);
 			} else if (c == 2) {
@@ -109,11 +110,13 @@ public class TextOverlayFileManager {
 				endInputs[1] = lineList.get(i);
 			} else if (c == 11) {
 				endInputs[2] = lineList.get(i);
+			} else if (c == 12) {
+				positionEnum = lineList.get(i);
 			} else if (c == 0) {
 				if (!lineList.get(i).equals(">")) {
 					throw new VamixException("Corrupted file");
 				} else {
-					overlayList.add(new TextOverlay(pathToVideo, textToOverlay, pathToFont, fontSize, color, 
+					overlayList.add(new TextOverlay(pathToVideo, textToOverlay, pathToFont, fontSize, color, TextOverlay.TextPosition.valueOf(positionEnum),  
 							startInputs, endInputs));
 				}
 			}

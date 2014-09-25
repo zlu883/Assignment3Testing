@@ -11,6 +11,7 @@ import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
 
 import javax.swing.JButton;
 import javax.swing.JComboBox;
@@ -24,8 +25,8 @@ import javax.swing.event.DocumentListener;
 
 public class TextOverlayTab extends TextOverlayPanel {
 	private TextOverlay textComponent;
-	
-	//This field represents its index position in the tabbed pane component.
+
+	// This field represents its index position in the tabbed pane component.
 	private int tabPosition;
 
 	private JLabel pathToVideoLabel;
@@ -34,15 +35,15 @@ public class TextOverlayTab extends TextOverlayPanel {
 
 	public TextOverlayTab(TextOverlay textComponent, int tabPosition) {
 		this.textComponent = textComponent;
-		
+
 		this.tabPosition = tabPosition;
 
-		pathToVideoLabel = new JLabel(VamixPrototypeV2.getInstance()
+		pathToVideoLabel = new JLabel(GuiManager.getInstance()
 				.getVideoFilePath());
 
 		previewButton = new JButton("Preview");
 		previewButton.addActionListener(setPreviewButton());
-		
+
 		deleteButton = new JButton("Delete");
 		deleteButton.addActionListener(setDeleteButton());
 
@@ -50,28 +51,32 @@ public class TextOverlayTab extends TextOverlayPanel {
 
 		add(previewButton);
 		add(deleteButton);
-		
+
 		setInitialComponentValues();
 		addFocusListenersToComponents();
 
 	}
 
 	/**
-	 * This method will update all fields related to its text component object, 
+	 * This method will update all fields related to its text component object,
 	 * when the panel is first initialized.
 	 */
 	private void setInitialComponentValues() {
 
 		Component[] components = super.getComponents();
 
+		// Set the selected font
+		super.getFontsBox().setSelectedIndex(
+				TextOverlayWindow.getInstance().getTOpanel().getFontsBox()
+						.getSelectedIndex());
+
+		super.getPositionChooser().setSelectedIndex(
+				TextOverlayWindow.getInstance().getTOpanel()
+						.getPositionChooser().getSelectedIndex());
+
 		for (Component c : components) {
 			if (c instanceof JTextArea) {
 				((JTextArea) c).setText(textComponent.textToOverlay);
-			}
-
-			if (c instanceof JComboBox) {
-				((JComboBox) c)
-						.setSelectedIndex(textComponent.fontIndexInFontChooser);
 			}
 
 			if (c instanceof TimeInput) {
@@ -92,120 +97,117 @@ public class TextOverlayTab extends TextOverlayPanel {
 					c.setVisible(false);
 				}
 			}
-			
+
 			if (c instanceof JLabel) {
-				if (!((JLabel) c).getText().contains("Specify") && !(((JLabel) c).getText().contains("Select"))
-						&& !(((JLabel)c).getText().contains("/"))) {
+				if (!((JLabel) c).getText().contains("Specify")
+						&& !(((JLabel) c).getText().contains("Select"))
+						&& !(((JLabel) c).getText().contains("/"))) {
 					((JLabel) c).setText(textComponent.color);
 				}
 			}
 		}
 	}
-	
-	private void updateTextComponent(Component c) {
-		if (c instanceof JTextArea) {
-			textComponent.textToOverlay = ((JTextArea) c).getText();
-		}
 
-		if (c instanceof JComboBox) {
-			textComponent.pathToFont = getFontMap().get(((JComboBox) c).getSelectedItem().toString()).getPath();
-		}
+	private void updateTextComponent() {
+		System.out.println("checking");
+		
+		String videoPath = GuiManager.getInstance().getVideoFilePath();
+		
+		File selectedFontFile = getFontMap().get(
+				getFontsBox().getSelectedItem().toString());
+		String selectedFontPath = selectedFontFile.getPath();
 
-		if (c instanceof TimeInput) {
-			textComponent.fontSize = ((TimeInput) c).getText();
-		}
+		String fontsize = getFontSize().getText();
+		String colorString = getColorLabel().getText();
 
-		if (c instanceof InputPanel) {
-			if (((InputPanel) c).getLabelText().equals(
-					"Specify start time in hh:mm:ss")) {
-				textComponent.startInputs = ((InputPanel) c).getInputs();
-			} else {
-				((InputPanel) c).setInputs(textComponent.endInputs);
-				textComponent.endInputs = ((InputPanel) c).getInputs();
-			}
+		if (fontsize.equals("")) {
+			fontsize = "" + 16;
 		}
-
-		if (c instanceof JButton) {
-			if (((JButton) c).getText().equals("Add Text Component")) {
-				c.setVisible(false);
-			}
+		if (colorString.equals("ff000000") || colorString.equals(null)) {
+			colorString = "000000ff";
 		}
 		
-		if (c instanceof JLabel) {
-			if (!((JLabel) c).getText().contains("Specify") && !(((JLabel) c).getText().contains("Select"))
-					&& !(((JLabel)c).getText().contains("/"))) {
-				textComponent.color = ((JLabel) c).getText();
-			}
-		}
+		textComponent = new TextOverlay(videoPath,
+						getTextToOverlay().getText(), selectedFontPath, fontsize,
+						colorString,
+						TextOverlay.TextPosition.valueOf(getPositionChooser()
+								.getSelectedItem().toString()),
+						getStartInputPanel().getInputs(), getEndInputPanel().getInputs());
+		
+		TextOverlayWindow.getInstance().getTOpanel().getTextOverlayComponents().set(tabPosition, textComponent);
+		
 	}
-	
+
 	public void addFocusListenersToComponents() {
-		Component[] components = super.getComponents();
-		
+		Component[] components = getComponents();
+
 		for (Component c : components) {
-			c.addFocusListener(setFocusListener(c));
+			c.addFocusListener(setFocusListener());
 		}
 	}
-	
-	
-	public FocusListener setFocusListener(final Component c) {
+
+	public FocusListener setFocusListener() {
 		return new FocusListener() {
 
 			@Override
 			public void focusGained(FocusEvent arg0) {
 				// TODO Auto-generated method stub
-				updateTextComponent(c);
+				updateTextComponent();
 			}
 
 			@Override
 			public void focusLost(FocusEvent arg0) {
 				// TODO Auto-generated method stub
-				updateTextComponent(c);
+				updateTextComponent();
 			}
-			
+
 		};
 	}
-	
+
 	public ActionListener setPreviewButton() {
 		return new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
-				AvPreviewPlayer player = new AvPreviewPlayer();
-				player.execute();
+				ArrayList<TextOverlay> textOverlayCommands = TextOverlayWindow.getInstance().getTOpanel().getTextOverlayComponents();
+				ArrayList<String> commands = new ArrayList<String>();
+				
+				String command = "avplay -i " + GuiManager.getInstance().getVideoFilePath()
+						+ " -strict experimental -vf \"";
+				
+				int count = 0;
+				
+				for (TextOverlay t : textOverlayCommands) {
+					count++;
+					
+					command = command + t.createBashCommand();
+					if (!(count==textOverlayCommands.size())) command = command + ","; 
+				}
+				
+				command = command + "\"";
+				
+				System.out.println(command);
+				
+				commands.add(command);
+				
+				CustomSwingWorker csw = new CustomSwingWorker(commands);
+				csw.execute();
+				
+				//AvPreviewPlayer avp = new AvPreviewPlayer();
+				//avp.execute();
 			}
-			
+
 		};
 	}
-	
-	private class AvPreviewPlayer extends SwingWorker <Void, Void> {
-	
+
+	private class AvPreviewPlayer extends SwingWorker<Void, Void> {
+
 		@Override
 		protected Void doInBackground() throws Exception {
-			String color = "0xff" + textComponent.color;
 			
-			int startSeconds = Integer.parseInt(textComponent.startInputs[0]) * 3600
-					+ Integer.parseInt(textComponent.startInputs[1]) * 60
-					+ Integer.parseInt(textComponent.startInputs[2]);
-			int endSeconds = Integer.parseInt(textComponent.endInputs[0]) * 3600
-					+ Integer.parseInt(textComponent.endInputs[1]) * 60
-					+ Integer.parseInt(textComponent.endInputs[2]);
-			
-			String cmd = "avplay -i " + textComponent.pathToVideo
-					+ " -strict experimental -vf \"drawtext=fontfile='"
-					+ textComponent.pathToFont + "':text='" + textComponent.textToOverlay + "':fontsize='"
-					+ textComponent.fontSize + "':" + "fontcolor='" + textComponent.color
-					+ "': draw='gt(t," + startSeconds + ")*lt(t," + endSeconds
-					+ ")'\"";
+			String cmd = "avplay -i " + textComponent.pathToVideo + " -strict experimental -vf \"" + textComponent.createBashCommand() + "\"";
 			System.out.println(cmd);
-			//ProcessBuilder pb = new ProcessBuilder ("avplay", "-i", textComponent.pathToVideo, "-vf",
-					//"\"drawtext=" + "fontfile='"
-					//	+ textComponent.pathToFont + "':text='" + textComponent.textToOverlay + "':fontsize='"
-						//	+ textComponent.fontSize + "':" + "fontcolor='" + textComponent.color
-						//+ "':draw='gt(t," + startSeconds + ")*lt(t," + endSeconds
-						//+ ")'\"");
-			//String cmd = "avplay -i ~/Videos/big_buck_bunny.mp4 -strict experimental -vf \"drawtext=fontfile='/usr/share/fonts/truetype/fonts-japanese-gothic.ttf':text='poop':fontsize='50':fontcolor='0xffffcc66': draw='gt(t,5)*lt(t,10)'\"";
 
 			ProcessBuilder pb = new ProcessBuilder("/bin/bash", "-c", cmd);
 			Process p;
@@ -214,8 +216,8 @@ public class TextOverlayTab extends TextOverlayPanel {
 			p = pb.start();
 			System.out.println(pb.toString());
 			String s;
-			BufferedReader stdout = new BufferedReader(
-					new InputStreamReader(p.getInputStream()));
+			BufferedReader stdout = new BufferedReader(new InputStreamReader(
+					p.getInputStream()));
 
 			StringBuffer sb = new StringBuffer();
 
@@ -227,22 +229,23 @@ public class TextOverlayTab extends TextOverlayPanel {
 
 			p.destroy();
 			this.cancel(true);
-			
+
 			return null;
 		}
-		
+
 	}
-	
+
 	public ActionListener setDeleteButton() {
 		return new ActionListener() {
 
 			@Override
 			public void actionPerformed(ActionEvent arg0) {
 				// TODO Auto-generated method stub
-				TextOverlayWindow.getInstance().getTOpanel().getTextOverlayComponents().remove(tabPosition);
+				TextOverlayWindow.getInstance().getTOpanel()
+						.getTextOverlayComponents().remove(tabPosition);
 				TextOverlayWindow.getInstance().removeTab(tabPosition + 1);
 			}
-			
+
 		};
 	}
 
