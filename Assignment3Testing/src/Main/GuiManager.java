@@ -110,19 +110,18 @@ public class GuiManager {
 		_audioMenu = new JMenu("Audio");
 		_effectsMenu = new JMenu("Effects");
 		
-		_openProject = new JMenuItem("Open Project");
+		_openProject = new JMenuItem("Open Project...");
 		//_openProject.addActionListener(setOpenProjectButton());
 		_fileMenu.add(_openProject);
 		
-		_saveProject = new JMenuItem("Save Project");
+		_saveProject = new JMenuItem("Save Project...");
 		//_saveProject.addActionListener(setSaveProjectButton());
 		_fileMenu.add(_saveProject);
 		
-		_exportProject = new JMenuItem("Export Project");
+		_exportProject = new JMenuItem("Export Project...");
 		_exportProject.addActionListener(setExportButton());
 		_fileMenu.add(_exportProject);
 		
-
 		_playMedia = new JMenuItem("Play Media File...");
 		_playMedia.addActionListener(setChooseMediaFileButton());
 		_mediaMenu.add(_playMedia);

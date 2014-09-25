@@ -78,7 +78,7 @@ public class ExportWindow extends JFrame {
 		progressBar = new JProgressBar();
 		//progressBar.setBounds(198, 243, 148, 14);
 		progressBar.setEnabled(false);
-		contentPane.setLayout(null);
+		//contentPane.setLayout(null);
 		
 		contentPane.add(selectFileNameLabel);
 		contentPane.add(selectDirectoryLabel);

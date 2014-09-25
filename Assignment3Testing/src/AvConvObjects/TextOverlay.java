@@ -123,6 +123,7 @@ public class TextOverlay implements AvConvObject {
 	
 	public ArrayList<String> getFormatDataList() {
 		ArrayList<String> dataList = new ArrayList<String>();
+		dataList.add(">TEXTOVERLAY");
 		dataList.add(pathToVideo);
 		dataList.add(textToOverlay);
 		dataList.add(pathToFont);
