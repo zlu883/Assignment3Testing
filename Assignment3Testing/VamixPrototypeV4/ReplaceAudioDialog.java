@@ -36,7 +36,7 @@ public class ReplaceAudioDialog {
 		contentPane.setLayout(new BoxLayout(contentPane, BoxLayout.PAGE_AXIS));
 		
 		contentPane.add(Box.createVerticalStrut(GAPSIZE));
-		JLabel labelA = new JLabel("Please select overlay audio track:");
+		JLabel labelA = new JLabel("Please select replace audio track:");
 		labelA.setAlignmentX(Component.CENTER_ALIGNMENT);
 		contentPane.add(labelA);
 		JPanel chooseFilePanelA = new JPanel();
@@ -69,7 +69,8 @@ public class ReplaceAudioDialog {
 		JLabel labelC = new JLabel("Please enter video output format:");
 		labelC.setAlignmentX(Component.CENTER_ALIGNMENT);
 		contentPane.add(labelC);
-		String[] formats = { "Use source video format" };
+		contentPane.add(Box.createVerticalStrut(5));
+		String[] formats = { "Use source video format", "mp4", "avi", "mpg" };
 		_fileFormatBox = new JComboBox<String>(formats);
 		_fileFormatBox.setMaximumSize(new Dimension(250,100));
 		_fileFormatBox.setPreferredSize(new Dimension(250,20));
@@ -96,7 +97,7 @@ public class ReplaceAudioDialog {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				_audioFileField.setText(GuiManager.promptFileChooser(GuiManager.SAVE, "Select overlay audio file", _replaceDialog));		
+				_audioFileField.setText(GuiManager.promptFileChooser(GuiManager.OPEN, "Select overlay audio file", _replaceDialog));		
 			}
 			
 		};

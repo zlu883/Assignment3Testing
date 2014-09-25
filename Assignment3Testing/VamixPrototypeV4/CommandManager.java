@@ -22,6 +22,15 @@ public class CommandManager {
 		return new BashCommand("avconv -i " + videoFile + " -an " + outputFile);
 	}
 	
+	public static BashCommand extractDurationCommand(String input, String endTime, String output) {
+		return new BashCommand ("avconv -i " + input + " -ss 00:00:00 -t " + endTime + " -c copy " + output);
+	}
+	
+	public static BashCommand concatAudioCommand(String firstAudio, String secondAudio, String output) {
+		return new BashCommand("avconv -i \"concat:" + firstAudio + "|" + secondAudio +
+				"\" -c copy " + output);
+	}
+	
 	public static BashCommand drawtextCommand(String pathToVideo, String pathToFont, String textToOverlay,
 			String fontSize, String color, int startSeconds, int endSeconds) {
 		return new BashCommand("avconv -i " + pathToVideo

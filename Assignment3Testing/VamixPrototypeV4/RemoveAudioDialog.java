@@ -54,7 +54,8 @@ public class RemoveAudioDialog {
 		JLabel labelB = new JLabel("Please enter video output format:");
 		labelB.setAlignmentX(Component.CENTER_ALIGNMENT);
 		contentPane.add(labelB);
-		String[] formats = { "Use source video format" };
+		contentPane.add(Box.createVerticalStrut(5));
+		String[] formats = { "Use source video format", "mp4", "avi", "mpg" };
 		_fileFormatBox = new JComboBox<String>(formats);
 		_fileFormatBox.setMaximumSize(new Dimension(150,100));
 		_fileFormatBox.setAlignmentX(Component.CENTER_ALIGNMENT);
@@ -93,7 +94,7 @@ public class RemoveAudioDialog {
 			public void actionPerformed(ActionEvent e) {
 				String format = (String)_fileFormatBox.getSelectedItem();
 				if (format.equals("Use source video format")) {
-					BashCommand cmd = CommandManager.extractAudioCommand(_sourceVideo, _outputFileField.getText() + "." +
+					BashCommand cmd = CommandManager.removeAudioCommand(_sourceVideo, _outputFileField.getText() + "." +
 							GuiManager.getExtension(new File(_sourceVideo)));
 					cmd.run();
 				}
