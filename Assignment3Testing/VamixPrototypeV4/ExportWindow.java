@@ -50,19 +50,27 @@ public class ExportWindow extends JFrame {
 		setContentPane(contentPane);
 		
 		selectFileNameLabel = new JLabel("Specify name of file to export");
+		//selectFileNameLabel.setBounds(5, 5, 207, 15);
 		selectDirectoryLabel = new JLabel("Select the directory to export to");
+		//selectDirectoryLabel.setBounds(5, 38, 228, 15);
 		
 		fileNameField = new JTextField(30);
+		//fileNameField.setBounds(33, 150, 334, 19);
 		directoryField = new JTextField(30);
+		//directoryField.setBounds(12, 52, 334, 19);
 		
 		browseButton = new JButton("Browse");
+		//browseButton.setBounds(351, 49, 87, 25);
 		browseButton.addActionListener(setBrowseButton());
 		
 		exportButton = new JButton("Export");
+		//exportButton.setBounds(93, 102, 79, 25);
 		exportButton.addActionListener(setExportButton());
 		
 		progressBar = new JProgressBar();
+		//progressBar.setBounds(198, 243, 148, 14);
 		progressBar.setEnabled(false);
+		contentPane.setLayout(null);
 		
 		contentPane.add(selectFileNameLabel);
 		contentPane.add(selectDirectoryLabel);

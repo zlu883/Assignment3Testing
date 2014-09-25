@@ -1,3 +1,5 @@
+import java.util.ArrayList;
+
 import javax.swing.JFrame;
 
 public class CommandManager {
@@ -22,14 +24,24 @@ public class CommandManager {
 		return new BashCommand("avconv -i " + videoFile + " -an " + outputFile);
 	}
 	
-	public static BashCommand drawtextCommand(String pathToVideo, String pathToFont, String textToOverlay,
-			String fontSize, String color, int startSeconds, int endSeconds) {
-		return new BashCommand("avconv -i " + pathToVideo
-				+ " -strict experimental -vf \"drawtext=" + "fontfile='"
-				+ pathToFont + "':text='" + textToOverlay + "':fontsize='"
-				+ fontSize + "':" + "fontcolor='" + color
-				+ "': draw='gt(t," + startSeconds + ")*lt(t," + endSeconds
-				+ ")'\"");
+	public static BashCommand drawtextCommand(String pathToVideo, String outputFile, ArrayList<TextOverlay> textOverlays) {
+		String command = "avconv -i " + pathToVideo
+				+ " -strict experimental -vf \"";
+		
+		int count = 0;
+		
+		for (TextOverlay t : textOverlays) {
+			count++;
+			
+			command = command + t.createBashCommand();
+			
+			//If the it is not the last text component to add, then add a comma separator to the string
+			if (!(count==textOverlays.size())) command = command + ","; 
+		}
+		
+		command = command + "\" " + outputFile.toString();
+		
+		return new BashCommand(command);
 		
 	}
 	
