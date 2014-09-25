@@ -52,7 +52,8 @@ public class ExtractAudioDialog {
 		JLabel labelB = new JLabel("Please enter audio output format:");
 		labelB.setAlignmentX(Component.CENTER_ALIGNMENT);
 		contentPane.add(labelB);
-		String[] formats = { "mp3" };
+		contentPane.add(Box.createVerticalStrut(5));
+		String[] formats = { "mp3", "wav" };
 		_fileFormatBox = new JComboBox<String>(formats);
 		_fileFormatBox.setMaximumSize(new Dimension(150,100));
 		_fileFormatBox.setAlignmentX(Component.CENTER_ALIGNMENT);

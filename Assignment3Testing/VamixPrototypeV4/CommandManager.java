@@ -24,6 +24,7 @@ public class CommandManager {
 		return new BashCommand("avconv -i " + videoFile + " -an " + outputFile);
 	}
 	
+<<<<<<< HEAD
 	public static BashCommand drawtextCommand(String pathToVideo, String outputFile, ArrayList<TextOverlay> textOverlays) {
 		String command = "avconv -i " + pathToVideo
 				+ " -strict experimental -vf \"";
@@ -42,6 +43,25 @@ public class CommandManager {
 		command = command + "\" " + outputFile.toString();
 		
 		return new BashCommand(command);
+=======
+	public static BashCommand extractDurationCommand(String input, String endTime, String output) {
+		return new BashCommand ("avconv -i " + input + " -ss 00:00:00 -t " + endTime + " -c copy " + output);
+	}
+	
+	public static BashCommand concatAudioCommand(String firstAudio, String secondAudio, String output) {
+		return new BashCommand("avconv -i \"concat:" + firstAudio + "|" + secondAudio +
+				"\" -c copy " + output);
+	}
+	
+	public static BashCommand drawtextCommand(String pathToVideo, String pathToFont, String textToOverlay,
+			String fontSize, String color, int startSeconds, int endSeconds) {
+		return new BashCommand("avconv -i " + pathToVideo
+				+ " -strict experimental -vf \"drawtext=" + "fontfile='"
+				+ pathToFont + "':text='" + textToOverlay + "':fontsize='"
+				+ fontSize + "':" + "fontcolor='" + color
+				+ "': draw='gt(t," + startSeconds + ")*lt(t," + endSeconds
+				+ ")'\"");
+>>>>>>> ce2a6106e97b053724dde853819494b947e858e3
 		
 	}
 	

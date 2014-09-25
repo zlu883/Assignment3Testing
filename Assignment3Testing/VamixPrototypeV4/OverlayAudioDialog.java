@@ -3,28 +3,35 @@ import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.File;
+import java.text.ParseException;
 
 import javax.swing.Box;
 import javax.swing.BoxLayout;
 import javax.swing.JButton;
 import javax.swing.JComboBox;
 import javax.swing.JDialog;
+import javax.swing.JFormattedTextField;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JPanel;
 import javax.swing.JSeparator;
 import javax.swing.JTextField;
 import javax.swing.SwingConstants;
+import javax.swing.text.MaskFormatter;
 
 
 public class OverlayAudioDialog {
 
 	private JDialog _overlayDialog;
 	private JTextField _outputFileField, _audioFileField;
+	private JFormattedTextField _startTimeField;
 	private JComboBox<String> _fileFormatBox;
 	
 	private static final String TEMP_FILE = "temp.wav";
 	private static final String TEMP_FILE2 = "temp2.wav";
+	private static final String TEMP_FILE3 = "temp3.wav";
+	private static final String TEMP_FILE4 = "temp4.wav";
+
 	
 	private String _sourceVideo;
 	
@@ -54,6 +61,19 @@ public class OverlayAudioDialog {
 		contentPane.add(new JSeparator(SwingConstants.HORIZONTAL));
 		
 		contentPane.add(Box.createVerticalStrut(GAPSIZE));
+		JPanel startTimePanel = new JPanel();
+		startTimePanel.add(new JLabel("Please enter start time for overlay:"));
+		try {
+			_startTimeField = new JFormattedTextField(new MaskFormatter("##:##:##"));
+		} catch (ParseException e) {}
+		_startTimeField.setColumns(5);
+		_startTimeField.setText("00:00:00");
+		startTimePanel.add(_startTimeField);
+		contentPane.add(startTimePanel);
+		contentPane.add(Box.createVerticalStrut(GAPSIZE));
+		contentPane.add(new JSeparator(SwingConstants.HORIZONTAL));
+		
+		contentPane.add(Box.createVerticalStrut(GAPSIZE));
 		JLabel labelB = new JLabel("Please select output destination:");
 		labelB.setAlignmentX(Component.CENTER_ALIGNMENT);
 		contentPane.add(labelB);
@@ -72,7 +92,8 @@ public class OverlayAudioDialog {
 		JLabel labelC = new JLabel("Please enter video output format:");
 		labelC.setAlignmentX(Component.CENTER_ALIGNMENT);
 		contentPane.add(labelC);
-		String[] formats = { "Use source video format" };
+		contentPane.add(Box.createVerticalStrut(5));
+		String[] formats = { "Use source video format", "mp4", "avi", "mpg"};
 		_fileFormatBox = new JComboBox<String>(formats);
 		_fileFormatBox.setMaximumSize(new Dimension(250,100));
 		_fileFormatBox.setPreferredSize(new Dimension(250,20));
@@ -99,7 +120,7 @@ public class OverlayAudioDialog {
 
 			@Override
 			public void actionPerformed(ActionEvent e) {
-				_audioFileField.setText(GuiManager.promptFileChooser(GuiManager.SAVE, "Select overlay audio file", _overlayDialog));		
+				_audioFileField.setText(GuiManager.promptFileChooser(GuiManager.OPEN, "Select overlay audio file", _overlayDialog));		
 			}
 			
 		};
@@ -122,17 +143,27 @@ public class OverlayAudioDialog {
 			@Override
 			public void actionPerformed(ActionEvent e) {
 				String format = (String)_fileFormatBox.getSelectedItem();
+				BashCommand cmd = CommandManager.extractAudioCommand(_sourceVideo, TEMP_FILE);
+				cmd.run();
+				cmd = CommandManager.extractDurationCommand(TEMP_FILE, _startTimeField.getText(), TEMP_FILE3);
+				cmd.run();
+				cmd = CommandManager.concatAudioCommand(TEMP_FILE3, _audioFileField.getText(), TEMP_FILE4);
+				cmd.run();
+				cmd = CommandManager.overlayAudioCommand(TEMP_FILE, TEMP_FILE4, TEMP_FILE2);
+				cmd.run();
 				if (format.equals("Use source video format")) {
-					BashCommand cmd = CommandManager.extractAudioCommand(_sourceVideo, TEMP_FILE);
-					cmd.run();
-					cmd = CommandManager.overlayAudioCommand(TEMP_FILE, _audioFileField.getText(), TEMP_FILE2);
-					cmd.run();
 					cmd = CommandManager.replaceAudioCommand(_sourceVideo, TEMP_FILE2, _outputFileField.getText() + 
 							"." + GuiManager.getExtension(new File(_sourceVideo)));
 					cmd.run();
-					new File(TEMP_FILE).delete();
-					new File(TEMP_FILE2).delete();
+				} else {
+					cmd = CommandManager.replaceAudioCommand(_sourceVideo, TEMP_FILE2, _outputFileField.getText() + "." +
+							(String)_fileFormatBox.getSelectedItem());
+					cmd.run();
 				}
+				new File(TEMP_FILE).delete();
+				new File(TEMP_FILE2).delete();
+				new File(TEMP_FILE3).delete();
+				new File(TEMP_FILE4).delete();
 			}
 		};
 	}
